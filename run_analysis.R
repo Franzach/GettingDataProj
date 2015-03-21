@@ -41,7 +41,11 @@ test <- mutate(test, experiment_type = 2, activity = acttestdat[[1]],
 # Merge train and test data
 data <- bind_rows(train, test)
 data$activity <- factor(data$activity, levels = actlabel[, 1], labels = actlabel[, 2])
-          
-grpdata <- melt(data, id=c("subject", "activity"))
-means <- dcast(grpdata, subject ~ activity, mean)
+data$experiment_type <- factor(data$experiment_type, levels = c(1,2), 
+     labels = c("train", "test"))
+
+grpdata <- group_by(data, activity, subject)
+means <- aggregate(. ~ activity + subject, data = grpdata, mean)
+
+#means <- dcast(grpdata, subject ~ activity, mean)
 write.table(means, "wearables_data_summary.txt", row.name=FALSE)
